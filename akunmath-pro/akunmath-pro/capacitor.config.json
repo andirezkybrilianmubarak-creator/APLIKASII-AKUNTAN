@@ -1,0 +1,6 @@
+{
+  "appId": "com.akunmath.pro",
+  "appName": "AkunMath Pro",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

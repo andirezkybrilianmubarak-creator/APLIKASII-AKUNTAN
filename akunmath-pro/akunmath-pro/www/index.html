@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AkunMath Pro</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>tailwind.config={theme:{extend:{colors:{navy:{DEFAULT:'#0F2A4A',700:'#17395F',100:'#E3EAF3'},em:{DEFAULT:'#059669',400:'#34D399',100:'#D1FAE5'}}}}}</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.2/lib/browser/math.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="max-w-xl mx-auto">
+
+<section id="page-home" class="page px-4 pt-3 space-y-5">
+  <div class="hero rounded-2xl text-white p-5 pl-14">
+    <h1 class="serif text-3xl leading-tight font-bold">AkunMath Pro</h1>
+    <p class="mt-2 text-sm text-slate-200">Kalkulator akuntansi dan matematika, plus penyelesai soal cerita langkah demi langkah. Riwayat tersimpan di perangkatmu.</p>
+    <div class="mt-4 flex gap-2 flex-wrap">
+      <button class="btn btn-em" data-act="calc:jurnal">Mulai Hitung</button>
+      <button class="btn btn-ghost" data-act="story:auto">Pecahkan Soal Cerita</button>
+    </div>
+  </div>
+  <div class="divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
+    <button class="w-full text-left p-3 border-l-4 border-em" data-act="calc:jurnal"><b class="text-navy">Kalkulator Akuntansi</b><div class="text-sm text-slate-600">Jurnal umum, penyusutan, BEP, dan rasio keuangan.</div></button>
+    <button class="w-full text-left p-3 border-l-4 border-navy" data-act="calc:sci"><b class="text-navy">Kalkulator Matematika</b><div class="text-sm text-slate-600">Ilmiah (trigonometri, log, faktorial) dan matriks.</div></button>
+    <button class="w-full text-left p-3 border-l-4 border-em-400" data-act="story:auto"><b class="text-navy">Solver Soal Cerita</b><div class="text-sm text-slate-600">Mode offline otomatis atau AI bebas dengan API key.</div></button>
+  </div>
+  <div>
+    <h2 class="serif text-xl font-bold text-navy mb-2">Rumus populer hari ini</h2>
+    <div class="space-y-2">
+      <button class="card w-full text-left" data-act="calc:bep"><div class="text-xs text-slate-500">Titik Impas</div><div class="font-mono text-sm">BEP unit = Biaya Tetap ÷ (Harga − Biaya Variabel)</div></button>
+      <button class="card w-full text-left" data-act="calc:jurnal"><div class="text-xs text-slate-500">Persamaan Dasar Akuntansi</div><div class="font-mono text-sm">Aset = Liabilitas + Ekuitas</div></button>
+      <button class="card w-full text-left" data-act="story:bunga"><div class="text-xs text-slate-500">Bunga Majemuk</div><div class="font-mono text-sm">FV = PV × (1 + i)ⁿ</div></button>
+    </div>
+  </div>
+</section>
+
+<section id="page-story" class="page hidden px-4 pt-3">
+  <h2 class="serif text-2xl font-bold text-navy mb-2">Soal cerita</h2>
+  <div class="tabbar">
+    <button class="tab" data-tabgroup="story" data-tab="off">Mode Offline</button>
+    <button class="tab" data-tabgroup="story" data-tab="ai">Mode AI Bebas</button>
+  </div>
+  <div data-panelgroup="story" data-panel="off">
+    <label class="lbl" for="cat">Kategori soal</label>
+    <select id="cat" class="inp">
+      <option value="auto">Deteksi otomatis</option>
+      <option value="jurnal">Transaksi Jurnal Umum</option>
+      <option value="susut">Penyusutan Aset</option>
+      <option value="bep">Titik Impas (BEP)</option>
+      <option value="bunga">Bunga Majemuk / Tunggal</option>
+      <option value="spl">Sistem Persamaan Linear</option>
+    </select>
+    <label class="lbl" for="story-in">Teks soal</label>
+    <textarea id="story-in" rows="6" class="inp" placeholder="Tempel soal cerita di sini..."></textarea>
+    <div class="flex gap-2 mt-3"><button id="btn-solve" class="btn btn-em flex-1">Selesaikan</button><button id="btn-sample" class="btn btn-ghost">Isi contoh</button></div>
+    <div id="story-out" class="mt-4"></div>
+  </div>
+  <div data-panelgroup="story" data-panel="ai" class="hidden">
+    <p class="text-sm text-slate-600">API key disimpan hanya di perangkat ini (localStorage) dan dikirim langsung ke penyedia yang kamu pilih.</p>
+    <label class="lbl" for="ai-prov">Penyedia</label>
+    <select id="ai-prov" class="inp"><option value="gemini">Google Gemini</option><option value="openai">OpenAI</option></select>
+    <label class="lbl" for="ai-model">Model</label>
+    <input id="ai-model" class="inp" autocomplete="off">
+    <label class="lbl" for="ai-key">API Key</label>
+    <input id="ai-key" type="password" class="inp" autocomplete="off" placeholder="Tempel API key">
+    <label class="lbl" for="ai-q">Soal</label>
+    <textarea id="ai-q" rows="6" class="inp" placeholder="Ketik soal akuntansi atau matematika tingkat lanjut..."></textarea>
+    <button id="btn-ai" class="btn btn-em w-full mt-3">Minta pembahasan</button>
+    <div id="ai-out" class="mt-4"></div>
+  </div>
+</section>
+
+<section id="page-calc" class="page hidden px-4 pt-3">
+  <h2 class="serif text-2xl font-bold text-navy mb-2">Kalkulator</h2>
+  <div class="tabbar">
+    <button class="tab" data-tabgroup="calcgrp" data-tab="ak">Akuntansi</button>
+    <button class="tab" data-tabgroup="calcgrp" data-tab="mt">Matematika</button>
+  </div>
+
+  <div data-panelgroup="calcgrp" data-panel="ak">
+    <div class="tabbar">
+      <button class="tab" data-tabgroup="ak" data-tab="jurnal">Jurnal Umum</button>
+      <button class="tab" data-tabgroup="ak" data-tab="susut">Penyusutan</button>
+      <button class="tab" data-tabgroup="ak" data-tab="bep">BEP</button>
+      <button class="tab" data-tabgroup="ak" data-tab="rasio">Rasio</button>
+    </div>
+    <div data-panelgroup="ak" data-panel="jurnal" class="card">
+      <div class="jr text-xs font-semibold text-slate-500"><span>Akun</span><span>Debit</span><span>Kredit</span><span></span></div>
+      <div id="jr-rows"></div>
+      <div class="flex gap-2"><button id="jr-add" class="btn btn-ghost">Tambah baris</button><button id="jr-calc" class="btn btn-em flex-1">Cek balance</button></div>
+      <div id="jr-out" class="mt-3 text-sm"></div>
+    </div>
+    <div data-panelgroup="ak" data-panel="susut" class="card hidden">
+      <label class="lbl" for="sd-c">Harga perolehan (Rp)</label><input id="sd-c" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="sd-r">Nilai residu (Rp)</label><input id="sd-r" type="number" inputmode="decimal" class="inp" value="0">
+      <label class="lbl" for="sd-u">Umur ekonomis (tahun)</label><input id="sd-u" type="number" inputmode="numeric" class="inp">
+      <label class="lbl" for="sd-m">Metode</label><select id="sd-m" class="inp"><option value="sl">Garis Lurus</option><option value="sm">Saldo Menurun Ganda</option></select>
+      <button id="sd-go" class="btn btn-em w-full mt-3">Hitung</button><div id="sd-out" class="mt-3 overflow-x-auto"></div>
+    </div>
+    <div data-panelgroup="ak" data-panel="bep" class="card hidden">
+      <label class="lbl" for="bp-f">Biaya tetap (Rp)</label><input id="bp-f" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="bp-v">Biaya variabel per unit (Rp)</label><input id="bp-v" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="bp-p">Harga jual per unit (Rp)</label><input id="bp-p" type="number" inputmode="decimal" class="inp">
+      <button id="bp-go" class="btn btn-em w-full mt-3">Hitung BEP</button><div id="bp-out" class="mt-3 text-sm"></div>
+    </div>
+    <div data-panelgroup="ak" data-panel="rasio" class="card hidden">
+      <label class="lbl" for="rs-al">Aset lancar</label><input id="rs-al" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="rs-ul">Utang lancar</label><input id="rs-ul" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="rs-lb">Laba bersih</label><input id="rs-lb" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="rs-eq">Ekuitas</label><input id="rs-eq" type="number" inputmode="decimal" class="inp">
+      <label class="lbl" for="rs-sl">Penjualan bersih</label><input id="rs-sl" type="number" inputmode="decimal" class="inp">
+      <button id="rs-go" class="btn btn-em w-full mt-3">Hitung rasio</button><div id="rs-out" class="mt-3 text-sm"></div>
+    </div>
+  </div>
+
+  <div data-panelgroup="calcgrp" data-panel="mt" class="hidden">
+    <div class="tabbar">
+      <button class="tab" data-tabgroup="mt" data-tab="sci">Ilmiah</button>
+      <button class="tab" data-tabgroup="mt" data-tab="mat">Matriks</button>
+    </div>
+    <div data-panelgroup="mt" data-panel="sci" class="card">
+      <input id="sci-in" class="inp text-xl" inputmode="none" autocomplete="off" placeholder="0">
+      <div id="sci-out" class="text-right text-2xl font-semibold text-navy min-h-[2rem] my-2 break-all"></div>
+      <div id="sci-keys" class="keys"></div>
+    </div>
+    <div data-panelgroup="mt" data-panel="mat" class="card hidden">
+      <label class="lbl" for="mx-n">Ukuran</label><select id="mx-n" class="inp"><option value="2">2 × 2</option><option value="3">3 × 3</option></select>
+      <label class="lbl">Matriks A</label><div id="mx-a" class="mx"></div>
+      <label class="lbl">Matriks B</label><div id="mx-b" class="mx"></div>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <button class="btn" data-mx="add">A + B</button><button class="btn" data-mx="mul">A × B</button>
+        <button class="btn btn-ghost" data-mx="deta">det(A)</button><button class="btn btn-ghost" data-mx="detb">det(B)</button>
+      </div>
+      <div id="mx-out" class="mt-3 text-sm overflow-x-auto"></div>
+    </div>
+  </div>
+</section>
+
+<section id="page-history" class="page hidden px-4 pt-3">
+  <div class="flex items-center justify-between mb-2"><h2 class="serif text-2xl font-bold text-navy">Riwayat</h2><button id="h-clear" class="btn btn-ghost">Hapus semua</button></div>
+  <div id="h-list" class="space-y-2"></div>
+</section>
+</main>
+
+<div id="toast" class="hidden"></div>
+<nav class="nav" aria-label="Navigasi utama">
+  <button class="navbtn on" data-p="home"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10H3z"/></svg>Beranda</button>
+  <button class="navbtn" data-p="story"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16v13H8l-4 4z"/></svg>Soal Cerita</button>
+  <button class="navbtn" data-p="calc"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg>Kalkulator</button>
+  <button class="navbtn" data-p="history"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Riwayat</button>
+</nav>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "akunmath-pro",
+  "version": "1.0.0",
+  "description": "AkunMath Pro - Kalkulator Akuntansi & Matematika",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}
